@@ -167,7 +167,7 @@ h1 {
 
 .disclaimer {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 button {
