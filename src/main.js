@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { useGtm } from 'vue-gtm'
+import VueGtm from 'vue-gtm';
 
-createApp(App).use(useGtm, { id: 'GTM-5L2JZHRK' }).mount('#app')
+createApp(App).use(VueGtm, { id: 'GTM-5L2JZHRK' }).mount('#app')
