@@ -26,8 +26,8 @@
       <option v-for="n in 9" :key="n" :value="n+1">{{ n+1 }} Equipes</option>
     </select>
     <div class="buttons">
-      <button @click="sortear">Sortear Equipes</button>
-      <button class="clear-button" @click="confirmClear">Limpar Lista</button>
+      <button @click="sortear" style="flex: 9;">Sortear Equipes</button>
+      <button class="clear-button" style="flex: 1;" @click="confirmClear">Limpar Lista</button>
     </div>
     <div v-if="teams.length" class="teams-container">
       <div v-for="(team, index) in teams" :key="index" class="team">
@@ -167,7 +167,7 @@ h1 {
 
 .disclaimer {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 button {
