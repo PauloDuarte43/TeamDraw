@@ -66,14 +66,16 @@ export default {
     sortear() {
       const players = this.extractPlayers(this.inputText);
       let newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
+      let tries = 0;
 
-      // // Ensure the new teams are different from the last two sorts
-      // while (this.isSimilarToLastTwo(newTeams)) {
-      //   newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      // }
+      // Ensure the new teams are different from the last two sorts
+      while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
+        newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
+        tries++;
+      }
 
       this.teams = newTeams;
-      // this.updateLastTwoSorts(newTeams);
+      this.updateLastTwoSorts(newTeams);
     },
     extractPlayers(text) {
       const lines = text.split('\n');
@@ -130,6 +132,9 @@ export default {
         this.lastTwoSorts.shift();
       }
       this.lastTwoSorts.push(newTeams);
+      console.log('Last two sorts:');
+      this.lastTwoSorts.forEach(teams => teams.forEach(team => console.log(team)));
+      console.log('Last two sorts:');
     },
     toggleHelp() {
       this.showHelp = !this.showHelp;
