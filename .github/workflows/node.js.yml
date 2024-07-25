@@ -40,7 +40,7 @@ jobs:
 
     - name: Deploy to server
       run: |
-        rsync -avz --delete dist/ opc@teamdraw.dev.pauloduarte.tec.br:/usr/local/src/nginx-docker/teamdraw
+        rsync -avz --delete dist/ opc@teamdraw.dev.pauloduarte.tec.br:/home/opc/projects/nginx-docker/teamdraw
 
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
