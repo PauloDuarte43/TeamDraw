@@ -69,10 +69,10 @@ export default {
       let tries = 0;
 
       // Ensure the new teams are different from the last two sorts
-      while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
-        newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-        tries++;
-      }
+      // while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
+      //   newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
+      //   tries++;
+      // }
 
       this.teams = newTeams;
       this.updateLastTwoSorts(newTeams);
