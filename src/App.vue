@@ -66,7 +66,7 @@ export default {
     sortear() {
       const players = this.extractPlayers(this.inputText);
       let newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      let tries = 0;
+      // let tries = 0;
 
       // Ensure the new teams are different from the last two sorts
       // while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
