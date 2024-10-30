@@ -34,4 +34,4 @@ jobs:
           aws-region: "us-east-1"
 
       - name: Deploy to S3
-        run: aws s3 sync dist/ s3://teamdraw.dev.pauloduarte.tec.br --delete
+        run: aws s3 sync dist/ s3://teamdraw.dev.pauloduarte.tec.br --delete --acl public-read
