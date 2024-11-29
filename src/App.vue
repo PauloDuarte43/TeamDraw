@@ -66,16 +66,7 @@ export default {
     sortear() {
       const players = this.extractPlayers(this.inputText);
       let newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      // let tries = 0;
-
-      // Ensure the new teams are different from the last two sorts
-      // while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
-      //   newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      //   tries++;
-      // }
-
       this.teams = newTeams;
-      this.updateLastTwoSorts(newTeams);
     },
     extractPlayers(text) {
       const lines = text.split('\n');
@@ -106,35 +97,17 @@ export default {
 
       return teams;
     },
-    isSimilarToLastTwo(newTeams) {
-      // Function to check if the new teams are too similar to the last two sorts
-      return this.lastTwoSorts.some(lastTeams => this.areTeamsSimilar(lastTeams, newTeams));
-    },
-    areTeamsSimilar(teamsA, teamsB) {
-      // Function to check similarity between two sets of teams
-      const [teamA1, teamA2] = teamsA;
-      const [teamB1, teamB2] = teamsB;
-
-      const teamA1Set = new Set(teamA1);
-      const teamA2Set = new Set(teamA2);
-      const teamB1Set = new Set(teamB1);
-      const teamB2Set = new Set(teamB2);
-
-      const intersection1 = [...teamA1Set].filter(player => teamB1Set.has(player)).length;
-      const intersection2 = [...teamA2Set].filter(player => teamB2Set.has(player)).length;
-
-      return (intersection1 / teamA1.length > 0.5 && intersection2 / teamA2.length > 0.5) ||
-             (intersection1 / teamA2.length > 0.5 && intersection2 / teamA1.length > 0.5);
-    },
-    updateLastTwoSorts(newTeams) {
-      // Update the last two sorts array
-      if (this.lastTwoSorts.length >= 2) {
-        this.lastTwoSorts.shift();
+    identificarGeneroPorRegex(nome) {
+      const nomeFormatado = nome.trim().toLowerCase();
+      const regexFeminino = /(a$|ia$|ana$|ela$|ina$|ita$|osa$|isa$|ete$|essa$|ira$|eza$)/;
+      const regexMasculino = /(o$|io$|eiro$|ino$|ano$|ino$|oso$|elo$|ardo$|erto$|ildo$)/;
+      if (regexFeminino.test(nomeFormatado)) {
+        return "Provavelmente Feminino";
       }
-      this.lastTwoSorts.push(newTeams);
-      console.log('Last two sorts:');
-      this.lastTwoSorts.forEach(teams => teams.forEach(team => console.log(team)));
-      console.log('Last two sorts:');
+      if (regexMasculino.test(nomeFormatado)) {
+        return "Provavelmente Masculino";
+      }
+      return "Desconhecido";
     },
     toggleHelp() {
       this.showHelp = !this.showHelp;
