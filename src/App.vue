@@ -33,7 +33,7 @@
       <div v-for="(team, index) in teams" :key="index" class="team">
         <h2>Equipe {{ index + 1 }}</h2>
         <ul>
-          <li v-for="player in team" :key="player">{{ player }}</li>
+          <li v-for="(player, playerIndex) in team" :key="player">{{playerIndex + 1}} - {{ player }}</li>
         </ul>
       </div>
     </div>
@@ -83,31 +83,60 @@ export default {
       return players;
     },
     shufflePlayersIntoTeams(players, numTeams) {
-      // Embaralhar jogadores
       for (let i = players.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      // Distribuir jogadores em equipes
+      const playersM = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "M");
+      console.log('playersM', playersM);
+
+      const playersF = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "F");
+      console.log('playersF', playersF);
+
+      const playersD = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "D");
+      console.log('playersD', playersD);
+
       const teams = Array.from({ length: numTeams }, () => []);
-      players.forEach((player, index) => {
+
+      playersM.forEach((player, index) => {
         teams[index % numTeams].push(player);
       });
+      console.log('teams after M', teams);
+
+      playersF.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
+      console.log('teams after F', teams);
+
+      teams.sort((a, b) => a.length - b.length);
+      console.log('teams afeter sort', teams);
+
+      playersD.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
+      console.log('teams', teams);
+
+      for (let i = 0; i < teams.length; i++) {
+        for (let j = teams[i].length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [teams[i][j], teams[i][k]] = [teams[i][k], teams[i][j]];
+        }
+      }
 
       return teams;
     },
     identificarGeneroPorRegex(nome) {
       const nomeFormatado = nome.trim().toLowerCase();
-      const regexFeminino = /(a$|ia$|ana$|ela$|ina$|ita$|osa$|isa$|ete$|essa$|ira$|eza$)/;
-      const regexMasculino = /(o$|io$|eiro$|ino$|ano$|ino$|oso$|elo$|ardo$|erto$|ildo$)/;
+      const regexFeminino = /(a$|ia$|ana$|ela$|ina$|ita$|osa$|isa$|ete$|essa$|ira$|eza$|ane$|ali$)/;
+      const regexMasculino = /(o$|io$|eiro$|ino$|ano$|ino$|oso$|elo$|ardo$|erto$|ildo$|ian$|dre$|lef$)/;
       if (regexFeminino.test(nomeFormatado)) {
-        return "Provavelmente Feminino";
+        return "F";
       }
       if (regexMasculino.test(nomeFormatado)) {
-        return "Provavelmente Masculino";
+        return "M";
       }
-      return "Desconhecido";
+      return "D";
     },
     toggleHelp() {
       this.showHelp = !this.showHelp;
