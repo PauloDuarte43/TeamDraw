@@ -33,7 +33,7 @@
       <div v-for="(team, index) in teams" :key="index" class="team">
         <h2>Equipe {{ index + 1 }}</h2>
         <ul>
-          <li v-for="player in team" :key="player">{{ player }}</li>
+          <li v-for="(player, playerIndex) in team" :key="player">{{playerIndex + 1}} - {{ player }}</li>
         </ul>
       </div>
     </div>
@@ -66,16 +66,7 @@ export default {
     sortear() {
       const players = this.extractPlayers(this.inputText);
       let newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      // let tries = 0;
-
-      // Ensure the new teams are different from the last two sorts
-      // while (this.isSimilarToLastTwo(newTeams) && tries < 100) {
-      //   newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
-      //   tries++;
-      // }
-
       this.teams = newTeams;
-      this.updateLastTwoSorts(newTeams);
     },
     extractPlayers(text) {
       const lines = text.split('\n');
@@ -92,49 +83,60 @@ export default {
       return players;
     },
     shufflePlayersIntoTeams(players, numTeams) {
-      // Embaralhar jogadores
       for (let i = players.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      // Distribuir jogadores em equipes
+      const playersM = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "M");
+      console.log('playersM', playersM);
+
+      const playersF = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "F");
+      console.log('playersF', playersF);
+
+      const playersD = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "D");
+      console.log('playersD', playersD);
+
       const teams = Array.from({ length: numTeams }, () => []);
-      players.forEach((player, index) => {
+
+      playersM.forEach((player, index) => {
         teams[index % numTeams].push(player);
       });
+      console.log('teams after M', teams);
+
+      playersF.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
+      console.log('teams after F', teams);
+
+      teams.sort((a, b) => a.length - b.length);
+      console.log('teams afeter sort', teams);
+
+      playersD.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
+      console.log('teams', teams);
+
+      for (let i = 0; i < teams.length; i++) {
+        for (let j = teams[i].length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [teams[i][j], teams[i][k]] = [teams[i][k], teams[i][j]];
+        }
+      }
 
       return teams;
     },
-    isSimilarToLastTwo(newTeams) {
-      // Function to check if the new teams are too similar to the last two sorts
-      return this.lastTwoSorts.some(lastTeams => this.areTeamsSimilar(lastTeams, newTeams));
-    },
-    areTeamsSimilar(teamsA, teamsB) {
-      // Function to check similarity between two sets of teams
-      const [teamA1, teamA2] = teamsA;
-      const [teamB1, teamB2] = teamsB;
-
-      const teamA1Set = new Set(teamA1);
-      const teamA2Set = new Set(teamA2);
-      const teamB1Set = new Set(teamB1);
-      const teamB2Set = new Set(teamB2);
-
-      const intersection1 = [...teamA1Set].filter(player => teamB1Set.has(player)).length;
-      const intersection2 = [...teamA2Set].filter(player => teamB2Set.has(player)).length;
-
-      return (intersection1 / teamA1.length > 0.5 && intersection2 / teamA2.length > 0.5) ||
-             (intersection1 / teamA2.length > 0.5 && intersection2 / teamA1.length > 0.5);
-    },
-    updateLastTwoSorts(newTeams) {
-      // Update the last two sorts array
-      if (this.lastTwoSorts.length >= 2) {
-        this.lastTwoSorts.shift();
+    identificarGeneroPorRegex(nome) {
+      const nomeFormatado = nome.trim().toLowerCase();
+      const regexFeminino = /(a$|ia$|ana$|ela$|ina$|ita$|osa$|isa$|ete$|essa$|ira$|eza$|ane$|ali$)/;
+      const regexMasculino = /(o$|io$|eiro$|ino$|ano$|ino$|oso$|elo$|ardo$|erto$|ildo$|ian$|dre$|lef$)/;
+      if (regexFeminino.test(nomeFormatado)) {
+        return "F";
       }
-      this.lastTwoSorts.push(newTeams);
-      console.log('Last two sorts:');
-      this.lastTwoSorts.forEach(teams => teams.forEach(team => console.log(team)));
-      console.log('Last two sorts:');
+      if (regexMasculino.test(nomeFormatado)) {
+        return "M";
+      }
+      return "D";
     },
     toggleHelp() {
       this.showHelp = !this.showHelp;
