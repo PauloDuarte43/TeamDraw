@@ -1,5 +1,8 @@
 <template>
   <div id="app">
+    <div v-if="isLoading" class="loading">
+      Carregando...
+    </div>
     <h1>Sorteio de Equipes</h1>
     <div class="disclaimer">
       <button @click="toggleHelp" ref="helpButton">Ajuda</button>
@@ -8,11 +11,11 @@
         <ul>
           <li>Texto copiado do WhatsApp com o nome dos jogadores iniciados por número:</li>
           <div>
-            horario: 18:00<br/>
-            local: ginasio<br/>
-            <br/>
-            1 - jogador<br/>
-            2 - outro Jogador<br/>
+            horario: 18:00<br />
+            local: ginasio<br />
+            <br />
+            1 - jogador<br />
+            2 - outro Jogador<br />
           </div>
           <li>Número. Nome (ex.: 1. Jogador1)</li>
           <li>Número - Nome (ex.: 1 - Jogador1)</li>
@@ -23,7 +26,7 @@
     </div>
     <textarea v-model="inputText" placeholder="Insira a lista de jogadores"></textarea>
     <select v-model="numTeams">
-      <option v-for="n in 9" :key="n" :value="n+1">{{ n+1 }} Equipes</option>
+      <option v-for="n in 9" :key="n" :value="n + 1">{{ n + 1 }} Equipes</option>
     </select>
     <div class="buttons">
       <button @click="sortear" style="flex: 9;">Sortear Equipes</button>
@@ -33,7 +36,11 @@
       <div v-for="(team, index) in teams" :key="index" class="team">
         <h2>Equipe {{ index + 1 }}</h2>
         <ul>
-          <li v-for="(player, playerIndex) in team" :key="player">{{playerIndex + 1}} - {{ player }}</li>
+          <li 
+            :class="{ 'gender-m': player.gender === 'M', 'gender-f': player.gender === 'F' }"
+            v-for="(player, playerIndex) in team" :key="player">
+            {{ playerIndex + 1 }} - {{ player }}
+          </li>
         </ul>
       </div>
     </div>
@@ -48,7 +55,10 @@ export default {
       numTeams: 2,
       teams: [],
       lastTwoSorts: [],
-      showHelp: false
+      showHelp: false,
+      nomes: [],
+      nomeMap: new Map(),
+      isLoading: true
     }
   },
   watch: {
@@ -62,7 +72,43 @@ export default {
   beforeUnmount() {
     document.removeEventListener('click', this.closeHelp);
   },
+  async created() {
+    try {
+      const response = await fetch('grupos.json');
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar o JSON: ${response.statusText}`);
+      }
+      this.nomes = await response.json();
+
+      this.nomes.forEach(item => {
+        this.nomeMap.set(item.name.toLowerCase(), item.classification);
+
+        if (item.names) {
+          const alternativos = item.names.split('|').filter(Boolean);
+          alternativos.forEach(alt => {
+            this.nomeMap.set(alt.toLowerCase(), item.classification);
+          });
+        }
+      });
+
+      console.log('Mapa de nomes criado:', this.nomeMap);
+    } catch (error) {
+      console.error('Erro ao carregar os nomes:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  },
   methods: {
+    normalizarTexto(texto) {
+      return texto
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    },
+    identificarGenero(nome) {
+      const nomeFormatado = this.normalizarTexto(nome);
+      return this.nomeMap.get(nomeFormatado) || 'D';
+    },
     sortear() {
       const players = this.extractPlayers(this.inputText);
       let newTeams = this.shufflePlayersIntoTeams(players, this.numTeams);
@@ -88,59 +134,46 @@ export default {
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      // const playersM = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "M");
-      // console.log('playersM', playersM);
-
-      // const playersF = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "F");
-      // console.log('playersF', playersF);
-
-      // const playersD = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "D");
-      // console.log('playersD', playersD);
-
       const teams = Array.from({ length: numTeams }, () => []);
-      players.forEach((player, index) => {
+
+      const playersM = players.filter(player => this.identificarGenero(player.split(' ')[0]) === "M").map(player => ({ name: player, gender: "M" }));
+      console.log('playersM', playersM);
+
+      playersM.forEach((player, index) => {
         teams[index % numTeams].push(player);
       });
+
+      teams.sort((a, b) => a.length - b.length);
       console.log('teams', teams);
 
-      // playersM.forEach((player, index) => {
-      //   teams[index % numTeams].push(player);
-      // });
-      // console.log('teams after M', teams);
+      const playersF = players.filter(player => this.identificarGenero(player.split(' ')[0]) === "F").map(player => ({ name: player, gender: "F" }));
+      console.log('playersF', playersF);
 
-      // playersF.forEach((player, index) => {
-      //   teams[index % numTeams].push(player);
-      // });
-      // console.log('teams after F', teams);
+      playersF.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
 
-      // teams.sort((a, b) => a.length - b.length);
-      // console.log('teams afeter sort', teams);
+      teams.sort((a, b) => a.length - b.length);
+      console.log('teams', teams);
 
-      // playersD.forEach((player, index) => {
-      //   teams[index % numTeams].push(player);
-      // });
-      // console.log('teams', teams);
+      const playersD = players.filter(player => this.identificarGenero(player.split(' ')[0]) === "D").map(player => ({ name: player, gender: "D" }));
+      console.log('playersD', playersD);
 
-      // for (let i = 0; i < teams.length; i++) {
-      //   for (let j = teams[i].length - 1; j > 0; j--) {
-      //     const k = Math.floor(Math.random() * (j + 1));
-      //     [teams[i][j], teams[i][k]] = [teams[i][k], teams[i][j]];
-      //   }
-      // }
+      playersD.forEach((player, index) => {
+        teams[index % numTeams].push(player);
+      });
+
+      teams.sort((a, b) => a.length - b.length);
+      console.log('teams', teams);
+
+      teams.forEach(team => {
+        for (let i = team.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [team[i], team[j]] = [team[j], team[i]];
+        }
+      });
 
       return teams;
-    },
-    identificarGeneroPorRegex(nome) {
-      const nomeFormatado = nome.trim().toLowerCase();
-      const regexFeminino = /(a$|ia$|ana$|ela$|ina$|ita$|osa$|isa$|ete$|essa$|ira$|eza$|ane$|ali$)/;
-      const regexMasculino = /(o$|io$|eiro$|ino$|ano$|ino$|oso$|elo$|ardo$|erto$|ildo$|ian$|dre$|lef$)/;
-      if (regexFeminino.test(nomeFormatado)) {
-        return "F";
-      }
-      if (regexMasculino.test(nomeFormatado)) {
-        return "M";
-      }
-      return "D";
     },
     toggleHelp() {
       this.showHelp = !this.showHelp;
@@ -174,6 +207,14 @@ export default {
 h1 {
   text-align: center;
   color: #333;
+}
+
+.gender-f {
+  background-color: #a507b613;
+}
+
+.gender-m {
+  background-color: #0079fa17;
 }
 
 .disclaimer {
@@ -223,7 +264,8 @@ button:hover {
   background-color: #f9f9f9;
   padding: 10px;
   border-radius: 5px;
-  white-space: pre-wrap; /* Ensures the text wraps properly */
+  white-space: pre-wrap;
+  /* Ensures the text wraps properly */
   margin: 10px 0;
   font-family: 'Courier New', Courier, monospace;
 }
