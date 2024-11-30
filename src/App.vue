@@ -88,41 +88,45 @@ export default {
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      const playersM = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "M");
-      console.log('playersM', playersM);
+      // const playersM = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "M");
+      // console.log('playersM', playersM);
 
-      const playersF = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "F");
-      console.log('playersF', playersF);
+      // const playersF = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "F");
+      // console.log('playersF', playersF);
 
-      const playersD = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "D");
-      console.log('playersD', playersD);
+      // const playersD = players.filter(player => this.identificarGeneroPorRegex(player.split(' ')[0]) === "D");
+      // console.log('playersD', playersD);
 
       const teams = Array.from({ length: numTeams }, () => []);
-
-      playersM.forEach((player, index) => {
-        teams[index % numTeams].push(player);
-      });
-      console.log('teams after M', teams);
-
-      playersF.forEach((player, index) => {
-        teams[index % numTeams].push(player);
-      });
-      console.log('teams after F', teams);
-
-      teams.sort((a, b) => a.length - b.length);
-      console.log('teams afeter sort', teams);
-
-      playersD.forEach((player, index) => {
+      players.forEach((player, index) => {
         teams[index % numTeams].push(player);
       });
       console.log('teams', teams);
 
-      for (let i = 0; i < teams.length; i++) {
-        for (let j = teams[i].length - 1; j > 0; j--) {
-          const k = Math.floor(Math.random() * (j + 1));
-          [teams[i][j], teams[i][k]] = [teams[i][k], teams[i][j]];
-        }
-      }
+      // playersM.forEach((player, index) => {
+      //   teams[index % numTeams].push(player);
+      // });
+      // console.log('teams after M', teams);
+
+      // playersF.forEach((player, index) => {
+      //   teams[index % numTeams].push(player);
+      // });
+      // console.log('teams after F', teams);
+
+      // teams.sort((a, b) => a.length - b.length);
+      // console.log('teams afeter sort', teams);
+
+      // playersD.forEach((player, index) => {
+      //   teams[index % numTeams].push(player);
+      // });
+      // console.log('teams', teams);
+
+      // for (let i = 0; i < teams.length; i++) {
+      //   for (let j = teams[i].length - 1; j > 0; j--) {
+      //     const k = Math.floor(Math.random() * (j + 1));
+      //     [teams[i][j], teams[i][k]] = [teams[i][k], teams[i][j]];
+      //   }
+      // }
 
       return teams;
     },
