@@ -39,7 +39,7 @@
           <li 
             :class="{ 'gender-m': player.gender === 'M', 'gender-f': player.gender === 'F' }"
             v-for="(player, playerIndex) in team" :key="player">
-            {{ playerIndex + 1 }} - {{ player }}
+            {{ playerIndex + 1 }} - {{ player.name }}
           </li>
         </ul>
       </div>
