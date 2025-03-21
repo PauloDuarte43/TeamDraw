@@ -74,15 +74,26 @@ export default {
   },
   async created() {
     try {
-      const response = await fetch('grupos.json');
-      if (!response.ok) {
-        throw new Error(`Erro ao carregar o JSON: ${response.statusText}`);
+      // Verifica se já existe o JSON salvo no localStorage
+      const gruposCache = localStorage.getItem('grupos');
+      if (gruposCache) {
+        // Se houver, parseia o JSON salvo
+        this.nomes = JSON.parse(gruposCache);
+      } else {
+        // Caso não haja, busca o JSON da rede
+        const response = await fetch('grupos.json');
+        if (!response.ok) {
+          throw new Error(`Erro ao carregar o JSON: ${response.statusText}`);
+        }
+        this.nomes = await response.json();
+        // Salva o JSON no localStorage para usos futuros
+        localStorage.setItem('grupos', JSON.stringify(this.nomes));
       }
-      this.nomes = await response.json();
-
+    
+      // Processa os dados para criar o mapa de nomes
       this.nomes.forEach(item => {
         this.nomeMap.set(item.name.toLowerCase(), item.classification);
-
+    
         if (item.names) {
           const alternativos = item.names.split('|').filter(Boolean);
           alternativos.forEach(alt => {
@@ -90,7 +101,7 @@ export default {
           });
         }
       });
-
+    
       console.log('Mapa de nomes criado:', this.nomeMap);
     } catch (error) {
       console.error('Erro ao carregar os nomes:', error);
