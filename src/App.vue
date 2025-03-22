@@ -87,7 +87,7 @@ export default {
         }
         this.nomes = await response.json();
         // Salva o JSON no localStorage para usos futuros
-        localStorage.setItem('grupos', JSON.stringify(this.nomes));
+        // localStorage.setItem('grupos', JSON.stringify(this.nomes));
       }
     
       // Processa os dados para criar o mapa de nomes
